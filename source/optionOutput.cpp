@@ -58,6 +58,7 @@ double optionOutput::mcPrice(unsigned long nSim)
 		double e = engine(gen);
 		for (int j = 0; j < 2; ++j)
 		{
+			// antithetic variates for variance reduction
 			double sT = eS * std::exp(diffusion*(1 - j * 2) * e);
 			double p = (*payOff_)(sT);
 			sumPayoff += df * p;
@@ -401,10 +402,8 @@ void optionOutput::linspace(vector<double> &x, double start, double end, int ste
 double optionOutput::fdmPrice(Solver solver, double di, double dj)
 {
 	int nL = 2 * s_;
-
 	int nt = 1 / di;
 	int ns = 1 / dj;
-
 
 	int w = di / (dj*dj);
 
@@ -446,11 +445,13 @@ double optionOutput::fdmPrice(Solver solver, double di, double dj)
 
 	for (int i = 1; i <= ns - 1; i++)
 	{
+		// beta, gamma, alpha 
 		d[i] = 1 / (t_ / (1 / di)) + std::pow(sig_*i, 2) + r_ - q_;
 		c[i] = -(r_ - q_)* i * 0.5 - std::pow(sig_*i, 2)*0.5;
 		a[i] = (r_ - q_) * i * 0.5 - std::pow(sig_*i, 2)*0.5;
 	}
 
+	// linear boundary conditions
 	d[ns - 1] = d[ns - 1] + 2 * c[ns - 1];
 	a[ns - 1] = a[ns - 1] - c[ns - 1];
 
@@ -458,7 +459,8 @@ double optionOutput::fdmPrice(Solver solver, double di, double dj)
 	vector<double> x(ns + 1);
 	vector<double> fvec(ns + 1);
 	vector<double> temp;
-
+	
+	// Solving Algorhitm
 	for (int n = 1; n <= nt; n++)
 	{
 		for (int i = 1; i <= ns - 1; i++)
@@ -480,14 +482,14 @@ double optionOutput::fdmPrice(Solver solver, double di, double dj)
 
 		for (int h = 2; h <= ns; h++)
 		{
-			u[h][n + 1] = temp[h - 1];
-			fvec[h - 1] = temp[h - 1];
+			u[h][n + 1] = temp[h - 1]; // for nt, ns
+			fvec[h - 1] = temp[h - 1]; // for single (ns)
 		}
 
 	}
 
 
-
+	// above why starting index = 1, shaping 1 ~ ns
 	double value = fvec[ns / 2];
 	return value;
 
