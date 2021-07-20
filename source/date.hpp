@@ -12,7 +12,7 @@ public:
 	int month() { return m_; }
 	int day() { return d_; }
 	int Date_Diff(Date dt);
-	int Date_Between(Date dt1, Date dt2);
+	double Date_Between(Date dt1, Date dt2);
 	void Date_Print();
 
 	bool operator> (const Date dt);

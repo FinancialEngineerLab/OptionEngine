@@ -21,7 +21,7 @@ int Date::Date_Diff(Date dt)
 	return difference;
 }
 
-int Date::Date_Between(Date dt1, Date dt2)
+double Date::Date_Between(Date dt1, Date dt2)
 {
 	return dt2.Date_Diff(dt1);
 }

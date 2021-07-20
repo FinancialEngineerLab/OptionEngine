@@ -2,6 +2,8 @@
 #include "date.hpp"
 #include <vector>
 
+enum compounding { Continuous, AnnualCompound};
+
 struct MarketTermStructure
 {
     Date date;
@@ -19,8 +21,9 @@ class TermStructure
     }
     void setPoint(Date dates, double rates);
     std::vector<Date> getDates();
-    double getValue(Date dt);
-    
+    double setBootstrap();
+    double getLinearValue(Date dt);
+
     void operator+=(const double d);
     void operator*=(const double d);
 
@@ -37,8 +40,11 @@ class YieldTermStructure : public TermStructure
     ~YieldTermStructure();
     YieldTermStructure(Date dates, double rates)
     : TermStructure(dates, rates) {}
-
-    double discountFactor(Date dt);
+    
+    double getZeroLinearValue(Date dt);
+    double getDiscountLogLinearValue(Date dt);
+    
+    double discountFactor(compounding comp, Date dt);
     double forwardRate(Date dt1, Date dt2);
     double zeroRate(Date dt);
 
